@@ -68,7 +68,6 @@ public class DAppProxySample implements CallServiceReceiver {
             
         } else if (_type.intValue() == 1) {
             int chunkSize = 7;
-            // String[] data_chunks = _data.split("(?<=\\G.{" + chunkSize + "})");
             String msgData = new String(_data);
             String[] data_chunks = splitByLength(msgData, chunkSize);
 
@@ -81,7 +80,6 @@ public class DAppProxySample implements CallServiceReceiver {
                 byte[] msg_data = msg.toBytes();
                 if (i == data_chunks.length - 1) {
                     messageSend(id, _to, msg_data, _rollback);
-                    // id = getNextId();
                 } else {
                     messageSend(id, _to, msg_data, null);
                     id = getNextId();
@@ -124,7 +122,6 @@ public class DAppProxySample implements CallServiceReceiver {
             if (endIndex > length) {
                 endIndex = length;
             }
-
             substrings[i] = inputString.substring(startIndex, endIndex);
 
             startIndex = endIndex;
@@ -161,7 +158,6 @@ public class DAppProxySample implements CallServiceReceiver {
             RollbackDataReceived(_from, stored.getSvcSn(), received.getRollback());
         } else {
             // normal message delivery
-            // String msgData = new String(_data);
             MessageData msgData = MessageData.fromBytes(_data);
             if (msgData.getLength() > 0) {
                 if (msgData.getLength()-1 == msgData.getOffset()) {

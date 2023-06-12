@@ -89,8 +89,6 @@ contract DAppProxySample is ICallServiceReceiver, Initializable {
             string memory msgData = string(_data);
             uint256 id = ++lastId;
             MessageData memory msg_data = MessageData(id, msgData, 0, 0);
-            // bytes memory encodedMsg = abi.encode(msg_data);
-            // bytes memory encodedMsg = encodeMessageData(msg_data);
             bytes memory encodedMsg = encodeCSMessageRequest(msg_data);
             messageSend(id, _to, encodedMsg, _rollback);
         } else if (_type == 1) {
@@ -106,8 +104,6 @@ contract DAppProxySample is ICallServiceReceiver, Initializable {
                     i,
                     data_chunks.length
                 );
-                // bytes memory encodedMsg = abi.encode(msg_data);
-                // bytes memory encodedMsg = encodeMessageData(msg_data);
                 bytes memory encodedMsg = encodeCSMessageRequest(msg_data);
                 if (i == data_chunks.length - 1) {
                     messageSend(id, _to, encodedMsg, _rollback);
@@ -119,7 +115,6 @@ contract DAppProxySample is ICallServiceReceiver, Initializable {
         } else {
             uint256 id = ++lastId;
             bytes memory data = abi.encode(_data);
-            // bytes memory encodedMsg = encodeMessageData(_data);
             messageSend(id, _to, data, _rollback);
         }
     }
@@ -203,31 +198,23 @@ contract DAppProxySample is ICallServiceReceiver, Initializable {
             emit RollbackDataReceived(_from, stored.ssn, received);
         } else {
             // normal message delivery
-            // string memory msgData = string(_data);
             MessageData memory msg_data = decoderlp(_data);
 
             if (msg_data.length > 0) {
                 if (msg_data.length - 1 == msg_data.offset) {
                     string memory msgData;
                     for (uint256 i = 0; i < msg_data.length - 1; i++) {
-                        // bytes32 key = multikey(msg_data.id-msg_data.offset, msg_data.offset);
-
                         MessageData memory stored = messagess[
                             msg_data.id - msg_data.offset
                         ];
                         msgData = concatenate(msgData, stored.message);
                     }
                     msgData = concatenate(msgData, msg_data.message);
-                    // emit MessageReceivedData(_from, msgData);
-
                     bytes memory msg_data_bytes = bytes(msgData);
+
                     emit MessageReceived(_from, msg_data_bytes);
                 } else {
-                    // bytes32 key = multikey(msg_data.id, msg_data.offset);
-
                     messagess[msg_data.id] = msg_data;
-                    // bytes memory msg_data_bytes = bytes(msg_data.message);
-                    // emit MessageReceived(_from, msg_data_bytes);
                 }
             } else {
                 bytes memory msg_data_bytes = bytes(msg_data.message);
@@ -257,22 +244,6 @@ contract DAppProxySample is ICallServiceReceiver, Initializable {
                 ls[3].toUint()
             );
     }
-
-    // function encodeMessageData(
-    //     MessageData memory data
-    // ) public pure returns (bytes memory) {
-        
-    //     bytes memory id = RLPEncode.encodeUint(data.id);
-    //     bytes memory msgs = RLPEncode.encodeString(data.message);
-    //     bytes memory off = RLPEncode.encodeUint(data.offset);
-    //     bytes memory lng = RLPEncode.encodeUint(data.length);
-    //     bytes[4] memory datalist = [id, msgs,off,lng];
-    //     bytes memory last = RLPEncode.encodeList(datalist);
-    //     return last;
-
-
-    // }
-
     function encodeCSMessageRequest( MessageData memory data)
         internal
         pure

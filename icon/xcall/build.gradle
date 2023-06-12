@@ -1,0 +1,83 @@
+version = '0.6.1'
+
+dependencies {
+    compileOnly("foundation.icon:javaee-api:$javaeeVersion")
+    implementation project(':lib')
+
+    // for generating ScoreClient
+    annotationProcessor("foundation.icon:javaee-score-client:$scoreClientVersion")
+    compileOnly("foundation.icon:javaee-score-client:$scoreClientVersion")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+
+    testImplementation("foundation.icon:javaee-unittest:$javaeeUnittestVersion")
+    testImplementation project(':test-lib')
+    testImplementation project(':dapp-sample')
+    testAnnotationProcessor("foundation.icon:javaee-score-client:$scoreClientVersion")
+    testImplementation("foundation.icon:javaee-score-client:$scoreClientVersion")
+}
+
+optimizedJar {
+    dependsOn(project(':lib').jar)
+    mainClassName = 'foundation.icon.btp.xcall.CallServiceImpl'
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+deployJar {
+    endpoints {
+        lisbon {
+            uri = 'https://lisbon.net.solidwallet.io/api/v3'
+            nid = 0x2
+        }
+        local {
+            uri = scoreTest.url
+            nid = scoreTest.parseNid(scoreTest.nid)
+        }
+    }
+    keystore = scoreTest.default.keyStore
+    password = scoreTest.default.resolvedKeyPassword
+}
+
+def optimizedJarSample = project(':dapp-sample').tasks.optimizedJar
+
+test {
+    useJUnitPlatform {
+        if (!integrationTest) {
+            excludeTags("integration")
+        }
+    }
+    options {
+        testLogging.showStandardStreams = true
+        // for default client
+        dependsOn optimizedJar
+        systemProperty 'url', scoreTest.url
+        systemProperty 'nid', scoreTest.nid
+        systemProperty 'keyStore', scoreTest.default.keyStore
+        systemProperty 'keyPassword', scoreTest.default.resolvedKeyPassword
+        systemProperty 'scoreFilePath', project.tasks.optimizedJar.outputJarName
+
+        // for tester
+        systemProperty 'tester.keyStore', scoreTest.tester.keyStore
+        systemProperty 'tester.keyPassword', scoreTest.tester.resolvedKeyPassword
+
+        // for DApp proxy sample
+        dependsOn optimizedJarSample
+        systemProperty 'sample.url', scoreTest.url
+        systemProperty 'sample.nid', scoreTest.nid
+        systemProperty 'sample.keyStore', scoreTest.default.keyStore
+        systemProperty 'sample.keyPassword', scoreTest.default.resolvedKeyPassword
+        systemProperty 'sample.scoreFilePath', optimizedJarSample.outputJarName
+
+        // for bmc-mock client
+        dependsOn ":test-lib:optimizedJarMockBMC"
+        systemProperty 'bmc-mock.url', scoreTest.url
+        systemProperty 'bmc-mock.nid', scoreTest.nid
+        systemProperty 'bmc-mock.keyStore', scoreTest.default.keyStore
+        systemProperty 'bmc-mock.keyPassword', scoreTest.default.resolvedKeyPassword
+        systemProperty 'bmc-mock.scoreFilePath', tasks.getByPath(":test-lib:optimizedJarMockBMC").outputJarName
+        systemProperty 'bmc-mock.params._net', scoreTest.nid + '.icon'
+    }
+}
