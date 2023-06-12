@@ -8,7 +8,7 @@ Prerequisites:
 
 Usage: 
 
-To start with dapp, for solidity you need to installl two libraries
+To start with dapp, for solidity you need to install two libraries
     
     npm install solidity-rlp
     npm install @openzeppelin
