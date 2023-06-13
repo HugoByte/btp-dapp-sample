@@ -204,8 +204,9 @@ contract DAppProxySample is ICallServiceReceiver, Initializable {
                 if (msg_data.length - 1 == msg_data.offset) {
                     string memory msgData;
                     for (uint256 i = 0; i < msg_data.length - 1; i++) {
+                        uint256 key = msg_data.id - msg_data.offset;
                         MessageData memory stored = messagess[
-                            msg_data.id - msg_data.offset
+                            key+i
                         ];
                         msgData = concatenate(msgData, stored.message);
                     }
