@@ -59,11 +59,12 @@ public class DAppProxySample implements CallServiceReceiver {
     @External
     public void sendMessage(String _to, BigInteger _type, byte[] _data, @Optional byte[] _rollback) {
         var id = getNextId();
+        BigInteger feess= Context.getValue();
         if (_type.intValue() == 0) {
             String msgData = new String(_data);
             MessageData msg = new MessageData(id, msgData, 0, 0);
             byte[] msg_data = msg.toBytes();
-            messageSend(id, _to, msg_data, _rollback);
+            messageSend(feess,id, _to, msg_data, _rollback);
 
         } else if (_type.intValue() == 1) {
             int chunkSize = 7;
@@ -75,12 +76,12 @@ public class DAppProxySample implements CallServiceReceiver {
                 String data = data_chunks[i];
 
                 MessageData msg = new MessageData(id, data, i, data_chunks.length);
-
+                BigInteger feee = feess.divide(BigInteger.valueOf(data_chunks.length));
                 byte[] msg_data = msg.toBytes();
                 if (i == data_chunks.length - 1) {
-                    messageSend(id, _to, msg_data, _rollback);
+                    messageSend(feee, id, _to, msg_data, _rollback);
                 } else {
-                    messageSend(id, _to, msg_data, null);
+                    messageSend(feee, id, _to, msg_data, null);
                     id = getNextId();
                 }
                 i++;
@@ -90,7 +91,7 @@ public class DAppProxySample implements CallServiceReceiver {
 
     }
 
-    private void messageSend(BigInteger id, String to, byte[] data, byte[] _rollback) {
+    private void messageSend(BigInteger value,BigInteger id, String to, byte[] data, byte[] _rollback) {
         if (_rollback != null) {
             // The code below is not actually necessary because the _rollback data is stored
             // on the xCall side,
@@ -99,12 +100,12 @@ public class DAppProxySample implements CallServiceReceiver {
 
             Context.println("DAppProxy: store rollback data with id=" + id);
             RollbackData rbData = new RollbackData(id, _rollback);
-            var ssn = _sendCallMessage(Context.getValue(), to, data, rbData.toBytes());
+            var ssn = _sendCallMessage(value, to, data, rbData.toBytes());
             rbData.setSvcSn(ssn);
             rollbacks.set(id, rbData);
         } else {
             // This is for one-way message
-            _sendCallMessage(Context.getValue(), to, data, null);
+            _sendCallMessage(value, to, data, null);
         }
 
     }
