@@ -28,7 +28,6 @@ import score.annotation.External;
 import score.annotation.Optional;
 import score.annotation.Payable;
 
-
 import java.math.BigInteger;
 
 @ScoreClient
@@ -63,9 +62,9 @@ public class DAppProxySample implements CallServiceReceiver {
         if (_type.intValue() == 0) {
             String msgData = new String(_data);
             MessageData msg = new MessageData(id, msgData, 0, 0);
-            byte[] msg_data= msg.toBytes();
-            messageSend(id, _to,  msg_data, _rollback);
-            
+            byte[] msg_data = msg.toBytes();
+            messageSend(id, _to, msg_data, _rollback);
+
         } else if (_type.intValue() == 1) {
             int chunkSize = 7;
             String msgData = new String(_data);
@@ -74,7 +73,7 @@ public class DAppProxySample implements CallServiceReceiver {
             int i = 0;
             while (i < data_chunks.length) {
                 String data = data_chunks[i];
-                
+
                 MessageData msg = new MessageData(id, data, i, data_chunks.length);
 
                 byte[] msg_data = msg.toBytes();
@@ -160,10 +159,10 @@ public class DAppProxySample implements CallServiceReceiver {
             // normal message delivery
             MessageData msgData = MessageData.fromBytes(_data);
             if (msgData.getLength() > 0) {
-                if (msgData.getLength()-1 == msgData.getOffset()) {
+                if (msgData.getLength() - 1 == msgData.getOffset()) {
                     String msg = "";
                     for (int i = 0; i < msgData.getLength() - 1; i++) {
-                        BigInteger keys =BigInteger.valueOf(msgData.getId().intValue() - msgData.getOffset());
+                        BigInteger keys = BigInteger.valueOf(msgData.getId().intValue() - msgData.getOffset() + i);
                         MessageData stored = messages.get(keys);
                         msg.concat(stored.getMessage());
 
@@ -182,7 +181,7 @@ public class DAppProxySample implements CallServiceReceiver {
             if ("revertMessage".equals(msgData.getMessage())) {
                 Context.revert("revertFromDApp");
             }
-            
+
         }
     }
 
