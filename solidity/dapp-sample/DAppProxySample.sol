@@ -214,8 +214,8 @@ contract DAppProxySample is ICallServiceReceiver, Initializable {
                     emit MessageReceived(_from, msg_data_bytes);
                 } else {
                     messagess[msg_data.id] = msg_data;
-                    bytes memory msg_data_bytes11 = bytes(msg_data.message);
-                    emit MessageReceived(_from, msg_data_bytes11);
+                    // bytes memory msg_data_bytes11 = bytes(msg_data.message);
+                    // emit MessageReceived(_from, msg_data_bytes11);
                 }
             } else {
                 bytes memory msg_data_bytes = bytes(msg_data.message);
