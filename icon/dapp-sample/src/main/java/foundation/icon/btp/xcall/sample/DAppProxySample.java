@@ -170,18 +170,22 @@ public class DAppProxySample implements CallServiceReceiver {
                     }
                     msg.concat(msgData.getMessage());
                     Context.println("handleCallMessage: msgData= " + msg);
+                    if ("revertMessage".equals(msg)) {
+                        Context.revert("revertFromDApp");
+                    }
                     MessageReceived(_from, msgData.getMessage().getBytes());
                 } else {
                     messages.set(msgData.getId(), msgData);
                 }
             } else {
                 Context.println("handleCallMessage: msgData= " + msgData.getMessage());
+                if ("revertMessage".equals( msgData.getMessage())) {
+                    Context.revert("revertFromDApp");
+                }
                 MessageReceived(_from, msgData.getMessage().getBytes());
             }
 
-            if ("revertMessage".equals(msgData.getMessage())) {
-                Context.revert("revertFromDApp");
-            }
+            
 
         }
     }
