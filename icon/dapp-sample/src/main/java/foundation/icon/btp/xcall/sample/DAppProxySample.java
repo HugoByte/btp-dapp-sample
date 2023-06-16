@@ -59,12 +59,12 @@ public class DAppProxySample implements CallServiceReceiver {
     @External
     public void sendMessage(String _to, BigInteger _type, byte[] _data, @Optional byte[] _rollback) {
         var id = getNextId();
-        BigInteger feess= Context.getValue();
+        BigInteger feess = Context.getValue();
         if (_type.intValue() == 0) {
             String msgData = new String(_data);
             MessageData msg = new MessageData(id, msgData, 0, 0);
             byte[] msg_data = msg.toBytes();
-            messageSend(feess,id, _to, msg_data, _rollback);
+            messageSend(feess, id, _to, msg_data, _rollback);
 
         } else if (_type.intValue() == 1) {
             int chunkSize = 7;
@@ -91,7 +91,7 @@ public class DAppProxySample implements CallServiceReceiver {
 
     }
 
-    private void messageSend(BigInteger value,BigInteger id, String to, byte[] data, byte[] _rollback) {
+    private void messageSend(BigInteger value, BigInteger id, String to, byte[] data, byte[] _rollback) {
         if (_rollback != null) {
             // The code below is not actually necessary because the _rollback data is stored
             // on the xCall side,
@@ -165,27 +165,24 @@ public class DAppProxySample implements CallServiceReceiver {
                     for (int i = 0; i < msgData.getLength() - 1; i++) {
                         BigInteger keys = BigInteger.valueOf(msgData.getId().intValue() - msgData.getOffset() + i);
                         MessageData stored = messages.get(keys);
-                        msg.concat(stored.getMessage());
-
+                        msg = msg.concat(stored.getMessage());
                     }
-                    msg.concat(msgData.getMessage());
+                    msg = msg.concat(msgData.getMessage());
                     Context.println("handleCallMessage: msgData= " + msg);
                     if ("revertMessage".equals(msg)) {
                         Context.revert("revertFromDApp");
                     }
-                    MessageReceived(_from, msgData.getMessage().getBytes());
+                    MessageReceived(_from, msg.getBytes());
                 } else {
                     messages.set(msgData.getId(), msgData);
                 }
             } else {
                 Context.println("handleCallMessage: msgData= " + msgData.getMessage());
-                if ("revertMessage".equals( msgData.getMessage())) {
+                if ("revertMessage".equals(msgData.getMessage())) {
                     Context.revert("revertFromDApp");
                 }
                 MessageReceived(_from, msgData.getMessage().getBytes());
             }
-
-            
 
         }
     }
